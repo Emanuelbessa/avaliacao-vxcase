@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Model\Sale;
+use App\Models\Sale;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,6 +20,6 @@ class Sale extends Model
 
     public function products()
     {
-        return $this->BelongsToMany('App\Product', 'sale_product')->withPivot( 'price', 'quantity', 'amount')->withTimestamps();
+        return $this->BelongsToMany('App\Models\Product', 'sale_product')->withPivot( 'price', 'quantity', 'amount')->withTimestamps();
     }
 }

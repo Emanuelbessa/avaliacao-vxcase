@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,6 +17,6 @@ class Product extends Model
     ];
     public function sales()
     {
-        return $this->belongsToMany('App\Sale');
+        return $this->belongsToMany('App\Models\Sale');
     }
 }

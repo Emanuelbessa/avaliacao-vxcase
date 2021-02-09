@@ -12,7 +12,7 @@ class SaleTableSeeder extends Seeder
     public function run()
     {
 
-        $sales = factory(App\Sale::class, 30)
+        $sales = factory(App\Models\Sale::class, 30)
            ->create()
            ->each(function ($sale) {
                 $sale->products()->attach(

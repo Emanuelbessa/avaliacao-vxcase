@@ -5,7 +5,7 @@
 use App\Product;
 use Faker\Generator as Faker;
 
-$factory->define(Product::class, function (Faker $faker) {
+$factory->define(App\Models\Product::class, function (Faker $faker) {
     return [
         'name' => $faker->bothify(strtoupper('product-'.$faker->word)),
         'reference'=> $faker->bothify('VX-#####'),
