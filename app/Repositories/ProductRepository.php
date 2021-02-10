@@ -21,8 +21,13 @@ class ProductRepository{
      *
      * @return void
      */
-    public function listall()
+    public function listall(Request $request)
     {
+        if(isset($request->product_name))
+        $query = strtoupper($request->product_name);
+        return Product::where('name','LIKE','%'.$query.'%')
+                    ->orWhere('reference','LIKE','%'.$query.'%')->get();
+
         return $this->product->all();
     }
 

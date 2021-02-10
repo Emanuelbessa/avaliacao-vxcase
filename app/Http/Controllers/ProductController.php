@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\ProductRequestUpdate;
 use App\Repositories\ProductRepository;
@@ -15,9 +16,9 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ProductRepository $product)
+    public function index(ProductRepository $product, Request $request)
     {
-        return response()->json($product->listall(), Response::HTTP_OK);
+        return response()->json($product->listall($request), Response::HTTP_OK);
     }
     /**
      * Store a newly created resource in storage.
