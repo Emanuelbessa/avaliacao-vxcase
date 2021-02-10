@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\ProductRequestUpdate;
-use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Repositories\ProductRepository;
+use Exception;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
 {
@@ -14,14 +15,9 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(ProductRepository $product)
     {
-        if(isset($request->product_name))
-            $query = strtoupper($request->product_name);
-            return Product::where('name','LIKE','%'.$query.'%')
-                        ->orWhere('reference','LIKE','%'.$query.'%')->get();
-
-        return Product::all();
+        return response()->json($product->listall(), Response::HTTP_OK);
     }
     /**
      * Store a newly created resource in storage.
@@ -29,11 +25,20 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(ProductRequest $request)
+    public function store(ProductRequest $request, ProductRepository $product)
     {
-        $product = new Product;
-        $product->create($request->all());
-        return Response()->json('Produto cadastrado!', 201);
+
+        try {
+            $save = $product->save($request);
+
+            if ($save instanceof Exception) {
+                throw new Exception($save);
+            }
+
+            return response()->json(['message' => 'Produto cadastrado!', $save], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return $e;
+        }
     }
 
     /**
@@ -42,9 +47,9 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, ProductRepository $product)
     {
-        return Product::find($id);
+        return response()->json($product->listbyid($id), Response::HTTP_OK);
     }
 
 
@@ -55,16 +60,20 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(ProductRequestUpdate $request, $id)
+    public function update(ProductRequestUpdate $request, $id, ProductRepository $product)
     {
-        $product = Product::find($id);
-        $product->name = $request->name;
-        $product->reference = $request->reference;
-        $product->price = $request->price;
-        $product->delivery_days = $request->delivery_days;
-        $product->save();
-        return Response()->json('Produto Atualizado!', 200);
 
+        try {
+            $update = $product->atualizar($request, $id);
+
+            if ($update instanceof Exception) {
+                throw $update;
+            }
+
+            return response()->json(['message' => 'Produto Atualizado!', $update], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return $e;
+        }
     }
 
     /**
@@ -73,11 +82,18 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id, ProductRepository $product)
     {
-        $product = Product::find($id);
-        $product->delete();
-        return Response()->json('Produto Excluido!', 200);
+        try {
+            $delete = $product->delete($id);
 
+            if ($delete instanceof Exception) {
+                throw $delete;
+            }
+
+            return response()->json(['message' => 'Produto Excluido!'], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return $e;
+        }
     }
 }

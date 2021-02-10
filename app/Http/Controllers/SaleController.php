@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SaleRequest;
 use App\Http\Requests\SaleRequestUpdate;
+use App\Repositories\SaleRepository;
+use Exception;
 use Illuminate\Http\Request;
-use App\Models\Sale;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class SaleController extends Controller
 {
@@ -16,31 +16,30 @@ class SaleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request, SaleRepository $sale)
     {
-        if(isset($request->per_page))
-            $per_page = $request->per_page;
-        else 
-            $per_page = 20;
-        
-        return Sale::with('products:name,delivery_days')->paginate($per_page);
+        return response()->json($sale->listall($request), Response::HTTP_OK);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  SaleRequest $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(SaleRequest $request)
+    public function store(SaleRequest $request, SaleRepository $sale)
     {
-        $sale = new Sale;
-        $sale->purchase_at = Carbon::parse($request->purchase_at);
-        $sale->amount = $request->amount;
-        $sale->delivery_days = $request->delivery_days;
-        $sale->save();
-        $sale->products()->sync($request->products);
-        return Response()->json(['message'=>'Venda Concluida com sucesso!'], 201);
+        try {
+            $save = $sale->save($request);
+
+            if ($save instanceof Exception) {
+                throw new Exception($save);
+            }
+
+            return response()->json(['message' => 'Venda realizada com sucesso!', $save], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return $e;
+        }
     }
 
     /**
@@ -49,9 +48,9 @@ class SaleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, SaleRepository $sale)
     {
-        return Sale::with('products:name,delivery_days')->find($id);
+        return response()->json($sale->listbyid($id), Response::HTTP_OK);
     }
 
     /**
@@ -61,15 +60,19 @@ class SaleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(SaleRequestUpdate $request, $id)
+    public function update(SaleRequestUpdate $request, $id, SaleRepository $sale)
     {
-        $sale = Sale::find($id);
-        $sale->purchase_at = Carbon::parse($request->purchase_at);
-        $sale->save();
+        try {
+            $update = $sale->atualizar($request, $id);
 
-        $sale->products()->sync($request->products);
+            if ($update instanceof Exception) {
+                throw $update;
+            }
 
-        return Response()->json('Venda Alterada com sucesso!', 200);
+            return response()->json(['message' => 'Venda alterada com sucesso!', $update], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return $e;
+        }
     }
 
     /**
@@ -78,11 +81,18 @@ class SaleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id, SaleRepository $sale)
     {
-        $sale = Sale::find($id);
-        $sale->products()->detach();
-        $sale->delete();
-        return Response()->json('Venda Excluida com sucesso!', 200);
+        try {
+            $delete = $sale->delete($id);
+
+            if ($delete instanceof Exception) {
+                throw $delete;
+            }
+
+            return response()->json(['message' => 'Venda Excluida!'], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return $e;
+        }
     }
 }
