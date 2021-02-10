@@ -6,7 +6,6 @@ use App\Http\Requests\ProductRequest;
 use App\Http\Requests\ProductRequestUpdate;
 use App\Models\{Product};
 use Illuminate\Http\Request;
-
 class ProductRepository{
 
     private $product;
@@ -50,6 +49,24 @@ class ProductRepository{
         try {
             $this->product::create($request->all());
             return $this->product::orderBy('id', 'DESC')->first();
+
+        } catch (\Exception $e) {
+           return $e;
+        }
+    }
+
+    /**
+     *
+     *
+     * @param Array $request
+     * @return void
+     */
+    public function saveterminal(Array $data)
+    {
+
+        try {
+            $this->product::create($data);
+            return $this->product;
 
         } catch (\Exception $e) {
            return $e;
