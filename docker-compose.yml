@@ -1,0 +1,62 @@
+version: "3.7"
+services:
+
+  app:
+    build:
+      args:
+        user: emanuel
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: vx-case
+    container_name: vx-case-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    depends_on: 
+      - db
+    volumes:
+      - ./:/var/www
+    networks:
+      - vx-net
+      - redeexterna
+
+  db:
+    image: mysql:8.0.23
+    container_name: vx-case-db
+    restart: unless-stopped
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    networks:
+      - vx-net
+      - redeexterna
+    volumes:
+      - vxdb:/var/lib/mysql
+
+  nginx:
+    image: nginx:1.19.6-alpine
+    container_name: vx-case-nginx
+    restart: unless-stopped
+    depends_on: 
+      - app
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www
+      - ./config/docker-compose/:/etc/nginx/conf.d
+    networks:
+      - vx-net
+      - redeexterna
+
+networks:
+  vx-net:
+    driver: bridge
+  redeexterna:
+    external:
+      name: vx-case-rede-externa
+volumes:
+  vxdb:
