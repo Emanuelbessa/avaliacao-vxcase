@@ -2297,14 +2297,15 @@ __webpack_require__.r(__webpack_exports__);
 
         _this3.$router.push('/');
       })["catch"](function (error) {
+        for(const [key, erro] of Object.entries(error.response.data.errors)){
+          _this3.$toast.open({
+            duration: 4000,
+            message: erro[0],
+            position: 'is-bottom',
+            type: 'is-danger'
+          });
+        }
         _this3.finishing = false;
-
-        _this3.$toast.open({
-          duration: 5000,
-          message: 'Erro ao finalizar a venda',
-          position: 'is-bottom',
-          type: 'is-danger'
-        });
       });
     }
   }

@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Requests\ProductRequest;
+use App\Http\Requests\ProductRequestUpdate;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -26,7 +29,7 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
         $product = new Product;
         $product->create($request->all());
@@ -52,7 +55,7 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ProductRequestUpdate $request, $id)
     {
         $product = Product::find($id);
         $product->name = $request->name;
